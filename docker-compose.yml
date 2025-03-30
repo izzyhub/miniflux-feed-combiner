@@ -1,0 +1,29 @@
+---
+version: "3.5"
+services:
+  miniflux-feed-combiner:
+    image: gitea.izzys.place/izzy/miniflux-feed-combiner:latest
+    container_name: miniflux-feed-combiner
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000
+    env_file:
+      - .envrc
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.botifactory-rtr.rule=Host(`botifactory.izzys.place`)"
+      - "traefik.http.routers.botifactory-rtr.tls=true"
+      - "traefik.http.services.botifactory-rtr.loadbalancer.server.port=3000"
+      - flame.type=application # "app" works too
+      - flame.name=botifactory
+      - flame.url=https://botifactory.izzys.place
+
+networks:
+  t2_proxy:
+    name: t2_proxy
+    external: true
