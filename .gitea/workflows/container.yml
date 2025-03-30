@@ -1,0 +1,28 @@
+name: miniflux-feed-combiner-container
+
+run-name: miniflux-feed-combiner-container
+
+env:
+  DATABASE_URL: ${{ vars.DATABASE_URL }}
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-image:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Install Docker
+        run: curl -fsSL https://get.docker.com | sh
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: "Docker Auth"
+        run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login -u izzy gitea.izzys.place --password-stdin
+      - name: Build Container
+        run: docker compose build
+      #- name: Tag Container
+      #run: docker tag act_runner_xtensa latest
+      - name: Publish Container
+        run: docker push gitea.izzys.place/izzy/miniflux-feed-combiner:latest
